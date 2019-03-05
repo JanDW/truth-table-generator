@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Truth Table Generator</title>
+    <style>
+      * {
+        color: #555;
+        background-color: #fff;
+        transition: all 0.2s ease-out;
+      }
+      input[type="text"] {
+        padding: 5px 15px;
+        border: 1px solid #aaa;
+        border-radius: 2px;
+        outline: none;
+      }
+      .rows {
+        padding-bottom: 5px;
+      }
+      .rows label {
+        width: 220px;
+        display: inline-block;
+      }
+      button {
+        border: 1px solid #aaa;
+        padding: 5px 15px;
+        border-radius: 4px;
+        outline: none;
+      }
+      button:hover {
+        background-color: #f0f0f0;
+      }
+      button:active {
+        background-color: #f9f9f9;
+      }
+      th,
+      td {
+        border: solid #ccc;
+        border-width: 1px 0 0 1px;
+        padding: 2px 5px;
+      }
+      th {
+        background-color: #f0f0f0;
+      }
+      td.true {
+        color: green;
+      }
+      td.false {
+        color: red;
+      }
+      tr:hover td {
+        background-color: #f0f0f0;
+      }
+      table {
+        border: solid #ccc;
+        border-width: 0 1px 1px 0;
+        margin-top: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div>
+      <div class="rows">
+        <label>Variables (comma separated)</label>
+        <input type="text" id="vars" value="a,b,c" />
+      </div>
+      <div class="rows">
+        <label>Expressions (comma separated)</label>
+        <input
+          type="text"
+          id="expression"
+          value="!( a || b || c ), (!a && !b && !c)"
+        />
+      </div>
+      <div class="rows">
+        <button id="getResult">Generate truth table</button>
+      </div>
+    </div>
+    <div id="result"></div>
+    <script>
+      var vars = ["a", "b", "c"],
+        expressions = ["! ( a || b || c )", "(!a && !b && !c)"];
+
+      document.getElementById("getResult").addEventListener("click", () => {
+        var len = vars.length,
+          splitBy = Math.round(len / 2),
+          trueSet,
+          trues = [],
+          falses = [],
+          truthData = [];
+
+        vars = document.getElementById("vars").value.split(",");
+        expressions = document.getElementById("expression").value.split(",");
+
+        truthData.push(truth(vars, vars, true));
+        for (var i = 1; i <= splitBy; i++) {
+          trueSet = reduceToCombinations(permut(vars, i));
+
+          trueSet.forEach(truthSrc => {
+            trues = truth(vars, truthSrc);
+            truthData.push(trues);
+          });
+        }
+        truthData.push(truth(vars, vars));
+
+        writeTruthTable(truthData);
+      });
+
+      function truth(set, truths, reverse) {
+        var w = {};
+
+        set.forEach(
+          v => (w[v] = (truths.indexOf(v) >= 0 ? true : false) ^ reverse)
+        );
+
+        return w;
+      }
+
+      function reduceToCombinations(arr) {
+        var i = 1,
+          lastEl;
+
+        arr = arr
+          .map(v => {
+            return v
+              .split("")
+              .sort()
+              .join("");
+          })
+          .sort();
+
+        lastEl = arr[0];
+        while (i < arr.length) {
+          if (arr[i] == lastEl) {
+            arr.splice(i, 1);
+          } else {
+            lastEl = arr[i];
+            i++;
+          }
+        }
+
+        arr = arr.map(v => {
+          return v.split("");
+        });
+
+        return arr;
+      }
+
+      function writeTruthTable(truthData) {
+        var table = "<table cellpadding=0 cellspacing=0>",
+          keys,
+          vals,
+          exprRes;
+
+        table += "<thead><tr>";
+        vars.forEach(v => {
+          table += "<th>";
+          table += v;
+          table += "</th>";
+        });
+        expressions.forEach(v => {
+          table += "<th>";
+          table += v;
+          table += "</th>";
+        });
+        table += "</tr></thead>";
+
+        truthData.forEach(v => {
+          vals = [];
+          keys = [];
+          table += "<tr>";
+          console.log(v);
+          for (i in v) {
+            vals.push(v[i]);
+            keys.push(i);
+            table += "<td>";
+            table += v[i];
+            table += "</td>";
+          }
+          for (var i = 0; i < keys.length; i++) {
+            eval(`var ${keys[i]} = ${vals[i]};`);
+          }
+          expressions.forEach(expr => {
+            exprRes = eval(expr);
+            table += `<td class="${exprRes}">`;
+            table += exprRes ? "T" : "F";
+            table += "</td>";
+          });
+
+          table += "</tr>";
+        });
+
+        table += "</table>";
+
+        document.getElementById("result").innerHTML = table;
+      }
+
+      function permut(arr, c) {
+        var buf = [],
+          len,
+          arrSlice,
+          permArr,
+          proArr;
+        if (c <= 1) {
+          return arr;
+        } else {
+          len = arr.length;
+          for (var i = 0; i < len; i++) {
+            arrSlice = arr.slice(0, i).concat(arr.slice(i + 1));
+            permArr = permut(arrSlice, c - 1);
+            proArr = [];
+            for (var y = 0; y < permArr.length; y++) {
+              proArr.push([arr[i]].concat(permArr[y]).join(""));
+            }
+            buf.push(...proArr);
+          }
+        }
+        return buf;
+      }
+    </script>
+  </body>
+</html>
