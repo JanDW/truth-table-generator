@@ -6,12 +6,17 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>Truth Table Generator</title>
     <style>
-      * {
+      body {
         color: #555;
         background-color: #fff;
-        transition: all 0.2s ease-out;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+          "Segoe UI Symbol";
       }
-      input[type="text"] {
+
+      input[type="text"],
+      textarea {
+        font-size: 1em;
         padding: 5px 15px;
         border: 1px solid #aaa;
         border-radius: 2px;
@@ -23,6 +28,7 @@
       .rows label {
         width: 220px;
         display: inline-block;
+        vertical-align: top;
       }
       button {
         border: 1px solid #aaa;
@@ -38,18 +44,21 @@
       }
       th,
       td {
-        border: solid #ccc;
+        border: solid #eee;
         border-width: 1px 0 0 1px;
-        padding: 2px 5px;
+        padding: 2px 10px;
       }
       th {
         background-color: #f0f0f0;
+        font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+          "Courier New", monospace;
+        font-weight: 500;
       }
       td.true {
-        color: green;
+        color: #1da160;
       }
       td.false {
-        color: red;
+        color: #ff7070;
       }
       tr:hover td {
         background-color: #f0f0f0;
@@ -65,15 +74,13 @@
     <div>
       <div class="rows">
         <label>Variables (comma separated)</label>
-        <input type="text" id="vars" value="a,b,c" />
+        <input type="text" id="vars" value="A,B" />
       </div>
       <div class="rows">
         <label>Expressions (comma separated)</label>
-        <input
-          type="text"
-          id="expression"
-          value="!( a || b || c ), (!a && !b && !c)"
-        />
+        <textarea id="expression" rows="5" cols="80">
+( A || B ), ( A && B )</textarea
+        >
       </div>
       <div class="rows">
         <button id="getResult">Generate truth table</button>
@@ -81,8 +88,8 @@
     </div>
     <div id="result"></div>
     <script>
-      var vars = ["a", "b", "c"],
-        expressions = ["! ( a || b || c )", "(!a && !b && !c)"];
+      var vars = ["A", "B"],
+        expressions = ["( A || B )", "( A && B )"];
 
       document.getElementById("getResult").addEventListener("click", () => {
         var len = vars.length,
@@ -185,7 +192,7 @@
           }
           expressions.forEach(expr => {
             exprRes = eval(expr);
-            table += `<td class="${exprRes}">`;
+            table += `<td class="${!!exprRes}">`;
             table += exprRes ? "T" : "F";
             table += "</td>";
           });
