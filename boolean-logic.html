@@ -1,0 +1,590 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Thanks</title>
+</head>
+<body>
+<h1 id="boolean-logic-in-javascript">Boolean Logic in JavaScript</h1>
+
+<blockquote>
+<p><a href="https://medium.com/@ntgard/https-medium-com-ntgard-boolean-logic-in-javascript-part-1-3371af974f19">Taken from a series of articles on Medium</a></p>
+</blockquote>
+
+<h2 id="part-1-boolean-operators-truth-tables">Part 1: Boolean Operators &amp; Truth Tables</h2>
+
+<h3 id="truthy-falsy-values-in-javascript">Truthy &amp; Falsy Values in JavaScript</h3>
+
+<p>Before we begin looking at logical expressions, which rely on the truthiness of statements to derive validity of the expression, we should have a solid understanding of what is <em>truthy</em> in JavaScript. Since JavaScript is loosely typed, values can be coerced into booleans to evaluate logical expressions. if conditions, <code>&amp;&amp;</code>, <code>||</code>, and the part of a ternary statement preceding the question mark (<code>_?_:_</code>) all coerce their evaluated values into booleans. (Note that this doesn’t mean that they necessarily <em>return</em> a boolean from the operation.) The shortcut to knowing what is truthy is to know that there are only six <em>falsy</em> values — <code>false</code>, <code>null</code>, <code>undefined</code>, <code>NaN</code>, <code>0</code>, and <code>''</code> — and <strong>everything else is truthy</strong>. This means that <code>[]</code> and <code>{}</code> are both truthy, which tend to trip people up.</p>
+
+<h3 id="the-logical-operators">The Logical Operators</h3>
+
+<p>In formal propositional logic, there are only a few operators: negation, conjunction, disjunction, implication, and bicondition. These each have JavaScript equivalents: <code>!</code>, <code>&amp;&amp;</code>, <code>||</code>, <code>if (/* condition */) { /* then consequence */}</code>, and <code>===</code>, respectively. All other logical statements can be built up from these, including *exclusive or *(xor) and <em>if-then-else</em> (ternary) statements. We’ll get to those in <a href="https://medium.com/@ntgard/https-medium-com-ntgard-boolean-logic-in-javascript-part-2-ec0b13169b2">Part 2</a>.</p>
+
+<p>First, let’s look at the <strong>truth tables</strong> for each of our basic operators. The truth tables tell us what the truthiness of an <em>expression</em> is based on the truthiness of its <em>parts</em>. For instance, the first row in the Negation truth table (below) should be read like this: “if statement A is True, then the expression !A is False.” Truth tables are important because <strong>if two expressions generate the same truth table, then those expressions are equivalent and can replace one another</strong>.</p>
+
+<figure>
+<img src="https://cdn-images-1.medium.com/max/2000/1*pjmVOQE3WfyxYS6DJ__raw.png" alt="" />
+</figure>
+
+<p>The <strong>Negation</strong> table is very straightforward. Negation is the only unary logical operator, meaning it acts on a single input. This means that <code>!A || B</code> should not be considered the same as <code>!(A || B)</code>. Parentheses act like grouping notation similar to what you’d find in mathematics.</p>
+
+<p>Negating a simple statement is not difficult; the negation of “it is raining” is “it is <strong>not</strong> raining,” and the negation of JavaScript’s primitive <code>true</code> is, of course, <code>false</code>. However, negating complex statements or expressions is not so simple. What is the negation of “it is <em>always</em> raining” or <code>isFoo &amp;&amp; isBar</code>? We will cover negating these and similar expressions in the next article.</p>
+
+<figure>
+<img src="https://cdn-images-1.medium.com/max/2000/1*flQScVCMfHCK3iYJVQ1S1Q.png" alt="" />
+</figure>
+
+<p>The <strong>Conjunction</strong> table shows that the expression <code>A &amp;&amp; B</code> is true only if <em>both</em> <code>A</code> and <code>B</code> are true. This should be very familiar from writing JavaScript.</p>
+
+<figure>
+<img src="https://cdn-images-1.medium.com/max/2000/1*uMfVjNA11pPReLF23MgIxQ.png" alt="" />
+</figure>
+
+<p>The <strong>Disjunction</strong> table should also be very familiar. A disjunction (logical <code>OR</code> statement) is true if <em>either</em> or <em>both</em> of <code>A</code> and <code>B</code> is true.</p>
+
+<figure>
+<img src="https://cdn-images-1.medium.com/max/2000/1*QXEhwsBC7zNOaPCFSHiHdw.png" alt="" />
+</figure>
+
+<p>The <strong>Implication</strong> table is not as familiar. Since <code>A</code> <em>implies</em> <code>B</code>, A being true implies <code>B</code> is true. However, <code>B</code> can be true for reasons other than <code>A</code>, which is why the last two lines of the table are true. The only time implication is false is when <code>A</code> is true and <code>B</code> is false because then <code>A</code> doesn’t imply <code>B</code>.</p>
+
+<p>While <code>if</code> statements are used for implications in JavaScript, not all if statements work this way. Usually, we use if as a flow control, not as a truthiness check where the consequence also matters in the check. Here is the archetypical <em>implication</em> if statement:</p>
+
+<pre><code>function implication(A, B) {
+  if (A) {
+    return B;
+  } else {
+    /* if A is false, the implication is true */
+    return true;
+  }
+}
+</code></pre>
+
+<p>Don’t worry that this is somewhat awkward. There are <a href="https://medium.com/@ntgard/https-medium-com-ntgard-boolean-logic-in-javascript-part-2-ec0b13169b2#5b35">easier ways to code implications</a>. Because of this awkwardness, though, I will continue to use <code>→</code> as the symbol for implications throughout these articles.</p>
+
+<figure>
+<img src="https://cdn-images-1.medium.com/max/2000/1*suZR-mn70-4XERFBCaG3jQ.png" alt="" />
+</figure>
+
+<p>The <strong>Bicondition</strong> operator, sometimes called if-and-only-if (IFF), evaluates to true only if the two operands, <code>A</code> and <code>B</code>, share the same truthiness value. Because of how JavaScript handles comparisons, the use of <code>===</code> for logical purposes should only be used on operands cast to booleans. That is, instead of <code>A === B</code>, we should use <code>!!A === !!B</code>.</p>
+
+<p><img src="https://cdn-images-1.medium.com/max/2000/1*SX5-E0EOlfb-HfuttEblHw.png" alt="The Complete Truth Table" /><em>The Complete Truth Table</em></p>
+
+<h3 id="caveats">Caveats</h3>
+
+<p>There are two big caveats to treating JavaScript code like propositional logic: <strong>short circuiting</strong> and <strong>order of operations</strong>.</p>
+
+<p>Short circuiting is something that JavaScript engines do to save time by not evaluating something that will not change the output of the whole expression. The function <code>doSomething()</code> in the following examples is never called because no matter what it returned, the outcome of the logical expression wouldn’t change:</p>
+
+<pre><code>// doSomething() is never called
+false &amp;&amp; doSomething();
+true || doSomething();
+</code></pre>
+
+<p>Recall that conjunctions (<code>&amp;&amp;</code>) are true <strong>only if</strong> <strong>both statements are true</strong>, and disjunctions (<code>||</code>) are false <strong>only if both statements are false</strong>, so in each of these cases, after reading the first value, no more calculations need to be done to evaluate the logical outcome of the expressions. Because of this feature, JavaScript sometimes breaks logical commutativity. Logically <code>A &amp;&amp; B</code> is equivalent to <code>B &amp;&amp; A</code>, but you would break your program if you commuted <code>window &amp;&amp; window.mightNotExist</code> into <code>window.mightNotExist &amp;&amp; window</code>. That’s not to say that the <em>truthiness</em> of a commuted expression is any different, just that JavaScript <em>may</em> throw an error trying to parse it.</p>
+
+<blockquote>
+<h1 id="javascript-does-not-guarantee-logical-commutativity">JavaScript does not guarantee logical commutativity</h1>
+</blockquote>
+
+<p>The <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_Precedence#Table">order of operations in JavaScript</a> caught me by surprise because I was not taught that formal logic <em>had</em> an order of operations, other than by grouping and left-to-right. It turns out that many programming languages consider <code>&amp;&amp;</code> to have a higher precedence than <code>||</code>. This means that <code>&amp;&amp;</code> is grouped (not evaluated) first, left-to-right, and then <code>||</code> is grouped left-to-right. This means that <code>A || B &amp;&amp; C</code> is <em>not</em> evaluated the same way as <code>(A || B) &amp;&amp; C</code>, but rather as <code>A || (B &amp;&amp; C)</code><a href="#5558">¹</a>.</p>
+
+<blockquote>
+<h1 id="javascript-does-not-group-boolean-operators-strictly-from-left-to-right">JavaScript does not group boolean operators strictly from left to right</h1>
+</blockquote>
+
+<p>Fortunately, <strong>grouping</strong>, <code>()</code>, holds the topmost precedence in JavaScript, so we can avoid surprises and ambiguity by manually associating the statements we want evaluated together into discrete expressions. This is why many code linters prohibit having both <code>&amp;&amp;</code> and <code>||</code> within the same group.</p>
+
+<h3 id="calculating-compound-truth-tables">Calculating Compound Truth Tables</h3>
+
+<p>Now that the truthiness of simple statements are known, the truthiness of more complex expressions can be calculated. To begin, count the number of variables in the expression and write a truth table that has 2ⁿ rows. Next create columns for each of the variables and fill them with every possible combination of true/false values. I recommend filling the first half of the first column with <code>T</code> and the second half with <code>F</code>, then quartering the next column and so on until it looks like this:</p>
+
+<figure>
+<img src="https://cdn-images-1.medium.com/max/2000/1*O4uKn-tk6asvENWp53ofqA.png" alt="" />
+</figure>
+
+<p>Then write the expression down and solve it in layers, from the innermost groups outward for each combination of truth values:</p>
+
+<figure>
+<img src="https://cdn-images-1.medium.com/max/2000/1*T0Hp-YOUJJVu7gVrtgdIHQ.png" alt="" />
+</figure>
+
+<h3 id="notes">Notes</h3>
+
+<ol>
+<li><p><a href="#6b17">ꜛ</a> I would have expected <code>A() || B() &amp;&amp; C()</code> to be evaluated the same way as <code>(A() || B()) &amp;&amp; C()</code> in the following example, but it is not:</p>
+
+<pre><code class="js">const A = () =&gt; {
+  console.log('A');
+  return true;
+}
+const B = () =&gt; {
+  console.log('B');
+  return true;
+}
+const C = () =&gt; {
+  console.log('C');
+  return false;
+}
+
+A() || B() &amp;&amp; C()
+// prints &quot;A&quot;, returns true
+(A() || B()) &amp;&amp; C()
+// prints &quot;A C&quot;, returns false
+</code></pre></li>
+</ol>
+
+<h2 id="part-2-logical-equivalencies">Part 2: Logical Equivalencies</h2>
+
+<p><img src="https://cdn-images-1.medium.com/max/12000/0*HghRpRFFfOBkDh1J" alt="Photo by Chris Lawton on Unsplash" /><em>Photo by <a href="https://unsplash.com/@chrislawton?utm_source=medium&amp;utm_medium=referral">Chris Lawton</a> on <a href="https://unsplash.com?utm_source=medium&amp;utm_medium=referral">Unsplash</a></em></p>
+
+<p>As stated in the <a href="https://medium.com/@ntgard/https-medium-com-ntgard-boolean-logic-in-javascript-part-1-3371af974f19">previous article</a>, expressions which produce the same truth table can be substituted for each other. This article covers several examples of Rules of Replacements that I often use. No truth tables are included here, but you can construct them yourself to prove that these rules are correct.</p>
+
+<h3 id="double-negation">Double Negation</h3>
+
+<p>Logically, <code>A</code> and <code>!!A</code> are equivalent, so you can always remove a double negation or <em>add</em> a double negation to an expression without changing its truthiness. Adding a double-negation comes in handy when you want to negate part of a complex expression, perhaps using <a href="#7dc0">DeMorgan’s Laws</a>. The one caveat here is that in JavaScript, <code>!!</code> also acts to coerce a value into a boolean, which may be an unwanted side-effect.</p>
+
+<blockquote>
+<p><code>A === !!A</code></p>
+</blockquote>
+
+<h3 id="commutation">Commutation</h3>
+
+<p>Any disjunction (<code>||</code>), conjunction (<code>&amp;&amp;</code>), or bicondition (<code>===</code>) can swap the order of its parts<a href="https://medium.com/@ntgard/https-medium-com-ntgard-boolean-logic-in-javascript-part-1-3371af974f19#4436">*</a>.</p>
+
+<blockquote>
+<p><code>(A || B) === (B || A)</code></p>
+
+<p><code>(A &amp;&amp; B) === (B &amp;&amp; A)</code></p>
+
+<p><code>(A === B) === (B === A)</code></p>
+</blockquote>
+
+<h3 id="association">Association</h3>
+
+<p>Disjunctions and conjunctions are binary operations, meaning they only operate on two inputs. While they can be coded in longer chains — <code>A || B || C || D</code> — they are implicitly associated from left to right — <code>((A || B) || C) || D</code>. The rule of association states that the order in which these groupings occur make <em>no difference</em> to the logical outcome.</p>
+
+<blockquote>
+<p><code>((A || B) || C) === (A || (B || C))</code></p>
+
+<p><code>((A &amp;&amp; B) &amp;&amp; C) === (A &amp;&amp; (B &amp;&amp; C))</code></p>
+</blockquote>
+
+<h3 id="distribution">Distribution</h3>
+
+<p>Association does not work across both conjunctions and disjunctions. That is, <code>(A &amp;&amp; (B || C)) !== ((A &amp;&amp; B) || C)</code>. In order to disassociate <code>B</code> and <code>C</code> in the previous example, you must <em>distribute</em> the conjunction — <code>(A &amp;&amp; B) || (A &amp;&amp; C)</code>. This process also works in reverse. If you find a compound expression with a repeated disjunction or conjunction, you can un-distribute it, akin to factoring out a common factor in an algebraic expression.</p>
+
+<blockquote>
+<p><code>(A &amp;&amp; (B || C)) === ((A &amp;&amp; B) || (A &amp;&amp; C))</code> </p>
+
+<p><code>(A || (B &amp;&amp; C)) === ((A || B) &amp;&amp; (A || C))</code></p>
+</blockquote>
+
+<p>Another common occurrence of distribution is double-distribution (similar to FOIL in algebra):</p>
+
+<blockquote>
+<ol>
+<li><code>((A || B) &amp;&amp; (C || D)) === ((A || B) &amp;&amp; C) || ((A || B) &amp;&amp; D)</code></li>
+<li><code>((A || B) &amp;&amp; C) || ((A || B) &amp;&amp; D) ===
+((A &amp;&amp; C) || B &amp;&amp; C)) || ((A &amp;&amp; D) || (B &amp;&amp; D))</code></li>
+</ol>
+
+<p><code>(A || B) &amp;&amp; (C || D) === (A &amp;&amp; C) || B &amp;&amp; C) || (A &amp;&amp; D) || (B &amp;&amp; D)</code></p>
+
+<p><code>(A &amp;&amp; B) ||(C &amp;&amp; D) === (A || C) &amp;&amp; (B || C) &amp;&amp; (A || D) &amp;&amp; (B || D)</code></p>
+</blockquote>
+
+<h3 id="material-implication">Material Implication</h3>
+
+<p>Implication expressions (<code>A → B</code>) typically get translated into code as if <code>(A) { B }</code> but that is not very useful if a compound expression has several implications in it. You would end up with nested <code>if</code> statements — a code smell. Instead, I often use the material implication rule of replacement, which says that <code>A → B</code> means either <code>A</code> is false or <code>B</code> is true.</p>
+
+<blockquote>
+<p><code>(A → B) === (!A || B)</code></p>
+</blockquote>
+
+<h3 id="tautology-contradiction">Tautology &amp; Contradiction</h3>
+
+<p>Sometimes during the course of manipulating compound logical expressions, you’ll end up with a simple conjunction or disjunction that only involves one variable and its negation or a boolean literal. In those cases, the expression is either always true (a tautology) or always false (a contradiction) and can be replaced with the boolean literal in code.</p>
+
+<blockquote>
+<p><code>(A || !A) === true</code></p>
+
+<p><code>(A || true) === true</code></p>
+
+<p><code>(A &amp;&amp; !A) === false</code></p>
+
+<p><code>(A &amp;&amp; false) === false</code></p>
+</blockquote>
+
+<p>Related to these equivalencies are the disjunction and conjunction with the other boolean literal. These can be simplified to just the truthiness of the variable.</p>
+
+<blockquote>
+<p><code>(A || false) === A</code></p>
+
+<p><code>(A &amp;&amp; true) === A</code></p>
+</blockquote>
+
+<h3 id="transposition">Transposition</h3>
+
+<p>When manipulating an implication (<code>A → B</code>), a common mistake people make is to assume that negating the first part, <code>A</code>, implies the second part, <code>B</code>, is also negated — <code>!A → !B</code>. This is called the <em>converse</em> of the implication and it is <strong>not necessarily true</strong>. That is, having the original implication does not tell us if the converse is true because <code>A</code> is not a <em>necessary</em> condition of <code>B</code>. (If the converse is also true — for independent reasons — then <code>A</code> and <code>B</code> are biconditional.)</p>
+
+<p>What we can know from the original implication, though, is that the <em>contrapositive</em> is true. Since <code>B</code> <em>is</em> a necessary condition for <code>A</code> (recall from the truth table for implication that if <code>B</code> is true, <code>A</code> must also be true for the implication to be true), we can claim that <code>!B → !A</code>.</p>
+
+<blockquote>
+<p><code>(A → B) === (!B → !A)</code></p>
+</blockquote>
+
+<h3 id="material-equivalence">Material Equivalence</h3>
+
+<p>The name <em>biconditional</em> comes from the fact that it represents two conditional (implication) statements: <code>A === B</code> means that <code>A → B</code> <strong>and</strong> <code>B → A</code>. The truth values of <code>A</code> and <code>B</code> are locked into each other. This gives us the first material equivalence rule:</p>
+
+<blockquote>
+<p><code>(A === B) === ((A → B) &amp;&amp; (B → A))</code></p>
+</blockquote>
+
+<p>Using material implication, double-distribution, contradiction, and commutation, we can manipulate this new expression into something easier to code:</p>
+
+<blockquote>
+<ol>
+<li><code>((A → B) &amp;&amp; (B → A)) === ((!A || B) &amp;&amp; (!B || A))</code></li>
+<li><code>((!A || B) &amp;&amp; (!B || A)) === 
+((!A &amp;&amp; !B) || (B &amp;&amp; !B)) || ((!A &amp;&amp; A) || (B &amp;&amp; A))</code></li>
+<li><code>((!A &amp;&amp; !B) || (B &amp;&amp; !B)) || ((!A &amp;&amp; A) || (B &amp;&amp; A)) === 
+((!A &amp;&amp; !B) || (B &amp;&amp; A))</code></li>
+<li><code>((!A &amp;&amp; !B) || (B &amp;&amp; A)) === ((A &amp;&amp; B) || (!A &amp;&amp; !B))</code></li>
+</ol>
+
+<p><code>(A === B) === ((A &amp;&amp; B) || (!A &amp;&amp; !B))</code></p>
+</blockquote>
+
+<h3 id="exportation">Exportation</h3>
+
+<p>Nested if statements, especially if there are no else parts, are a code smell. A simple nested if statement can be simplified into a single statement where the conditional is a conjunction of the two previous conditions:</p>
+
+<pre><code>if (A) {
+  if (B) {
+    C
+  }
+}
+// is equivalent to
+if (A &amp;&amp; B) {
+  C
+}
+</code></pre>
+
+<blockquote>
+<p><code>(A → (B → C)) === ((A &amp;&amp; B) → C)</code></p>
+</blockquote>
+
+<h3 id="demorgans-laws">DeMorgan’s Laws</h3>
+
+<p>DeMorgan’s Laws are essential to working with logical statements. They tell how to distribute a negation across a conjunction or disjunction. Consider the expression <code>!(A || B)</code>. DeMorgan’s Laws say that when negating a disjunction or conjunction, negate each statement and change the <code>&amp;&amp;</code> to <code>||</code> or vice versa. Thus <code>!(A || B)</code> is the same as <code>!A &amp;&amp; !B</code>. Similarly, <code>!(A &amp;&amp; B)</code> is equivalent to <code>!A || !B</code>.</p>
+
+<blockquote>
+<p><code>!(A || B) === !A &amp;&amp; !B</code></p>
+
+<p><code>!(A &amp;&amp; B) === !A || !B</code></p>
+</blockquote>
+
+<h3 id="ternary-if-then-else">Ternary (If-Then-Else)</h3>
+
+<p>Ternary statements (<code>A ? B : C</code>) occur regularly in programming, but they’re not quite implications. The translation from a ternary to formal logic is actually a conjunction of two implications, <code>A → B</code> and <code>!A → C</code>, which we can write as: <code>(!A || B) &amp;&amp; (A || C)</code>, using material implication.</p>
+
+<blockquote>
+<p><code>(A ? B : C) === (!A || B) &amp;&amp; (A || C)</code></p>
+</blockquote>
+
+<h3 id="xor-exclusive-or">XOR (Exclusive Or)</h3>
+
+<p>Exclusive Or, often abbreviated <strong>xor</strong>, means, “one or the other, but not both.” This differs from the normal <em>or</em> operator only in that both values cannot be true. This is often what we mean when we use “or” in plain English. JavaScript doesn’t have a native xor operator, so how would we represent this? </p>
+
+<blockquote>
+<ol>
+<li>“A or B, but not both A and B”</li>
+<li><code>(A || B) &amp;&amp; !(A &amp;&amp; B)</code> <em>direct translation</em></li>
+<li><code>(A || B) &amp;&amp; (!A || !B)</code> <em>DeMorgan’s Laws</em></li>
+<li><code>(!A || !B) &amp;&amp; (A || B)</code> <em>commutativity</em></li>
+<li><code>A ? !B : B</code> <em>if-then-else definition</em></li>
+</ol>
+
+<p><code>A ? !B : B</code> is exclusive or (xor) in JavaScript</p>
+</blockquote>
+
+<p>Alternatively,</p>
+
+<blockquote>
+<ol>
+<li>“A or B, but not both A and B”</li>
+<li><code>(A || B) &amp;&amp; !(A &amp;&amp; B)</code> <em>direct translation</em></li>
+<li><code>(A || B) &amp;&amp; (!A || !B)</code> <em>DeMorgan’s Laws</em></li>
+<li><code>(A &amp;&amp; !A) || (A &amp;&amp; !B) || (B &amp;&amp; !A) || (B &amp;&amp; !B)</code> <em>double-distribution</em></li>
+<li><code>(A &amp;&amp; !B) || (B &amp;&amp; !A)</code> <em>contradiction replacement</em></li>
+<li><code>A === !B</code> or <code>A !== B</code> <em>material equivalence</em></li>
+</ol>
+
+<p><code>A === !B</code> or <code>A !== B</code> is xor in JavaScript</p>
+</blockquote>
+
+<h2 id="part-3-universal-existential-statements">Part 3: Universal &amp; Existential Statements</h2>
+
+<p><img src="https://cdn-images-1.medium.com/max/11232/0*nKSa60y8mq-89e8N" alt="Photo by Sharon McCutcheon on Unsplash" /><em>Photo by <a href="https://unsplash.com/@sharonmccutcheon?utm_source=medium&amp;utm_medium=referral">Sharon McCutcheon</a> on <a href="https://unsplash.com?utm_source=medium&amp;utm_medium=referral">Unsplash</a></em></p>
+
+<p>So far we have been looking at statements about expressions involving two (or a few) values, but now we will turn our attention to sets of values. Much like how logical operators in compound expressions <a href="https://medium.com/@ntgard/https-medium-com-ntgard-boolean-logic-in-javascript-part-2-ec0b13169b2">preserve truthiness in predictable ways</a>, <em>predicate functions</em> on sets preserve truthiness in predictable ways. A <strong>predicate function</strong> is a function whose input is a value from a set and whose output is a boolean. For the code examples in this article, we will use an array of numbers for a set and two predicate functions:</p>
+
+<ul>
+<li><code>isOdd = n =&gt; n % 2 !== 0;</code> and</li>
+<li><code>isEven = n =&gt; n % 2 === 0;</code></li>
+</ul>
+
+<blockquote>
+<h1 id="a-predicate-function-is-a-function-whose-input-is-a-value-from-a-set-and-whose-output-is-a-boolean">A <strong>predicate function</strong> is a function whose input is a value from a set and whose output is a boolean.</h1>
+</blockquote>
+
+<h3 id="universal-statements">Universal Statements</h3>
+
+<p>A <strong>universal</strong> statement is one that applies to <strong>all</strong> elements in a set, meaning its predicate function returns true for every element. If the predicate returns false for any one (or more) element, then the universal statement is false. <code>Array.prototype.every</code> takes a predicate function and returns <code>true</code> only if every element of the array returns true for the predicate. It also terminates early (with <code>false</code>) if the predicate returns false, not running the predicate over any more elements of the array, so in practice <em>avoid side-effects in predicates</em>.</p>
+
+<p>As an example, consider the array <code>[2, 4, 6, 8]</code>, and the universal statement, “every element of the array is even.” Using <code>isEven</code> and JavaScript’s built-in universal function, we can run [2, 4, 6, 8].every(isEven)<code>and find that this is</code>true`.</p>
+
+<blockquote>
+<p><code>Array.prototype.every</code> is JavaScript’s Universal Statement</p>
+</blockquote>
+
+<h3 id="existential-statements">Existential Statements</h3>
+
+<p>An <strong>existential</strong> statement makes a specific claim about a set: at least one element in the set returns true for the predicate function. If the predicate returns false for every element in the set, then the existential statement is false.</p>
+
+<p>JavaScript also supplies a built-in existential statement: <code>Array.prototype.some</code>. Similar to <code>every</code>, <code>some</code> will return early (with true) if an element satisfies its predicate. As an example, <code>[1, 3, 5].some(isOdd)</code> will only run one iteration of the predicate <code>isOdd</code> (consuming <code>1</code> and returning <code>true</code>) and return <code>true</code>. <code>[1, 3, 5].some(isEven)</code> will return <code>false</code>.</p>
+
+<blockquote>
+<p><code>Array.prototype.some</code> is JavaScript’s Existential Statement</p>
+</blockquote>
+
+<h3 id="universal-implication">Universal Implication</h3>
+
+<p>Once you have checked a universal statement against a set, say <code>nums.every(isOdd)</code>, it is tempting to think that you can grab an element from the set that satisfies the predicate. However, there is one catch: in Boolean logic, a true universal statement <strong>does not imply</strong> that the set is non-empty. Universal statements about empty sets are <em>always true</em>, so if you wish to grab an element from a set satisfying some condition, use an existential check instead. To prove this, <code>run [].every(() =&gt; false</code>. It will be true.</p>
+
+<blockquote>
+<p>Universal statements about empty sets are <em>always true.</em></p>
+</blockquote>
+
+<h3 id="negating-universal-and-existential-statements">Negating Universal and Existential Statements</h3>
+
+<p>Negating these statements can be surprising. The negation of a universal statement, say <code>nums.every(isOdd)</code>, is not <code>nums.every(isEven)</code>, but rather <code>nums.some(isEven)</code>. This is an existential statement with the predicate negated. Similarly, the negation of an existential statement is a universal statement with the predicate negated.</p>
+
+<blockquote>
+<p><code>!arr.every(el =&gt; fn(el)) === arr.some(el =&gt; !fn(el))</code></p>
+
+<p><code>!arr.some(el =&gt; fn(el)) === arr.every(el =&gt; !fn(el))</code></p>
+</blockquote>
+
+<h3 id="set-intersections">Set Intersections</h3>
+
+<p>Two sets can only be related to each other in a few ways, with regards to their elements. These relationships are easily diagrammed with Venn Diagrams, and can (mostly) be determined in code using combinations of universal and existential statements.</p>
+
+<p>Two sets can each share some but not all of their elements, like a typical <em>conjoined</em> Venn Diagram:</p>
+
+<figure>
+<img src="https://cdn-images-1.medium.com/max/2656/1*YPAQch6oikW7H6plAHMGTQ.jpeg" alt="" />
+</figure>
+
+<blockquote>
+<p><code>A.some(el =&gt; B.includes(el)) &amp;&amp; A.some(el =&gt; !B.includes(el)) &amp;&amp; B.some(el =&gt; !A.includes(el))</code> <em>describes a conjoined pair of sets</em></p>
+</blockquote>
+
+<p>One set can contain all of the other set’s elements, but have elements not shared by the second set. This is a <strong>subset</strong> relationship, denoted as <code>Subset ⊆ Superset</code>.</p>
+
+<figure>
+<img src="https://cdn-images-1.medium.com/max/2656/1*08rWHqFo3xtvANwhk5YRuQ.jpeg" alt="" />
+</figure>
+
+<blockquote>
+<p><code>B.every(el =&gt; A.includes(el))</code> <em>describes the subset relationship B ⊆ A</em></p>
+</blockquote>
+
+<p>The two sets can share <strong>no</strong> elements. These are <em>disjoint</em> sets.</p>
+
+<figure>
+<img src="https://cdn-images-1.medium.com/max/2656/1*esskK3StxZhr2FCHOI_lRQ.jpeg" alt="" />
+</figure>
+
+<blockquote>
+<p><code>A.every(el =&gt; !B.includes(el))</code> describes a disjoint pair of sets</p>
+</blockquote>
+
+<p>Lastly, the two sets can share every element. That is, they are subsets of each other. These sets are <em>equal</em>. In formal logic, we would write <code>A ⊆ B &amp;&amp; B ⊆ A ⟷ A === B</code>, but in JavaScript, there are some complications with this. In JavaScript, an <code>Array</code> is an <em>ordered</em> set and may contain duplicate values, so we <strong>cannot</strong> assume that the bidirectional subset code <code>B.every(el =&gt; A.includes(el)) &amp;&amp; A.every(el =&gt; B.includes(el))</code> implies the arrays <code>A</code> and <code>B</code> are equal. If <code>A</code> and <code>B</code> are Sets (meaning they were created with <code>new Set()</code>), then their values are unique and we can do the bidirectional subset check to see if <code>A === B</code>.</p>
+
+<p><img src="https://cdn-images-1.medium.com/max/2656/1*2miLUj3FUYKJs8EFfz5eTw.jpeg" alt="" /></p>
+
+<blockquote>
+<p><code>(A === B) === (Array.from(A).every(el =&gt; Array.from(B).includes(el)) &amp;&amp; Array.from(B).every(el =&gt; Array.from(A).includes(el))</code>, <em>given that <code>A</code> and <code>B</code> are constructed using <code>new Set()</code></em></p>
+</blockquote>
+
+<p><strong>Next</strong>: <a href="https://medium.com/@ntgard/https-medium-com-ntgard-boolean-logic-in-javascript-part-4-ff7164842be8">Translating English to Code</a>.</p>
+
+<p>Part 4: English to Code Translations</p>
+
+<blockquote>
+<p>This is part of a series. Read parts <a href="https://medium.com/@ntgard/https-medium-com-ntgard-boolean-logic-in-javascript-part-1-3371af974f19">1</a>, <a href="https://medium.com/@ntgard/https-medium-com-ntgard-boolean-logic-in-javascript-part-2-ec0b13169b2">2</a>, and <a href="https://medium.com/@ntgard/https-medium-com-ntgard-boolean-logic-in-javascript-part-3-56ea3dfa53ab">3</a>.</p>
+</blockquote>
+
+<p>This article is probably the most useful in the series. Here, now that we know the logical operators, their truth tables, and rules of replacement, we can learn how to translate an English phrase into code and <em>simplify</em> it. In learning this translation skill, you will also be able to <em>read</em> code better, storing complex logic in simple phrases in your mind.</p>
+
+<p>Below is a table of logical code (left) and their English equivalents (right) that was heavily borrowed from the excellent book, <em><a href="https://www.amazon.com/Essentials-Logic-Irving-Copi/dp/013238034X/ref=sr_1_1?ie=UTF8&amp;qid=1531944915&amp;sr=8-1&amp;keywords=essentials+of+logic&amp;selectObb=rent">Essentials of Logic</a></em>.</p>
+
+<p><img src="https://cdn-images-1.medium.com/max/2420/1*bTCtRG4gEIHR2-dDFIZ4EQ.png" alt="View a screen-readable version of this code-to-English translation chart here." /><em>View a screen-readable version of this code-to-English translation chart <a href="https://docs.google.com/spreadsheets/d/e/2PACX-1vTei2ttk-psZ1ynH74emvJVIoFu7qPpY6c1LdZHrv5qnTBqQorR-tOXrmRggcn8DvYAbv-Z0z0cNCSc/pubhtml?gid=0&amp;single=true">here</a>.</em></p>
+
+<p>Below, I will go through some real-world examples from my own work where I interpret from English to code, and vice-versa, and simplify code with the <a href="https://medium.com/@ntgard/https-medium-com-ntgard-boolean-logic-in-javascript-part-2-ec0b13169b2">rules of replacement</a>.</p>
+
+<h3 id="example-1">Example 1</h3>
+
+<p>Recently, to satisfy the EU’s GDPR requirements, I had to create a modal that showed my company’s cookie policy and allowed the user to set their preferences. To make this as unobtrusive as possible, we had the following requirements (in order of precedence):
+1. If the user wasn’t in the EU, <strong>never</strong> show the GDPR preferences modal.
+2. If the app programmatically needs to show the modal (if a user action requires more permission than currently allowed), show the modal.
+3. If the user is allowed to have the less-obtrusive GDPR <em>banner</em>, do not show the modal.
+4. If the user has <strong>not</strong> already set their preferences (ironically saved in a cookie), show the modal.</p>
+
+<p>I started off with a series of <code>if</code> statements modeled directly after these requirements:</p>
+
+<pre><code>const isGdprPreferencesModalOpen = ({
+  shouldModalBeOpen,
+  hasCookie,
+  hasGdprBanner,
+  needsPermissions
+}) =&gt; {
+  if (!needsPermissions) {
+    return false;
+  }
+  if (shouldModalBeOpen) {
+    return true;
+  }
+  if (hasGdprBanner) {
+    return false;
+  }
+  if (!hasCookie) {
+    return true;
+  }
+  return false;
+}
+</code></pre>
+
+<p>To be clear, the above code works and could be left alone, but I believe that <a href="https://medium.com/@ntgard/returning-boolean-literals-is-a-code-smell-7a39531d6b60">returning boolean literals is a code smell</a>. So I went through the following steps:</p>
+
+<pre><code>/* change to a single return, if-else-if structure */
+let result;
+if (!needsPermissions) {
+  result = false;
+} else if (shouldBeOpen) {
+  result = true;
+} else if (hasBanner) {
+  result = false;
+} else if (!hasCookie) {
+  result = true
+} else {
+  result = false;
+}
+return result;
+
+/* use the definition of ternary to convert to a single return */
+return !needsPermissions ? false : (shouldBeOpen ? true : (hasBanner ? false : (!hasCookie ? true : false)))
+
+/* convert from ternaries to conjunctions of disjunctions */
+return (!!needsPermissions || false) &amp;&amp; (!needsPermissions || ((!shouldBeOpen || true) &amp;&amp; (shouldBeOpen || ((!hasBanner || false) &amp;&amp; (hasBanner || !hasCookie))))
+
+/* simplify double-negations and conjunctions/disjunctions with boolean literals */
+return needsPermissions &amp;&amp; (!needsPermissions || ((!shouldBeOpen || true) &amp;&amp; (shouldBeOpen || (!hasBanner &amp;&amp; (hasBanner || !hasCookie))))
+
+/* DeMorgan's Laws */
+return needsPermissions &amp;&amp; (!needsPermissions || ((!shouldBeOpen || true) &amp;&amp; (shouldBeOpen || ((!hasBanner &amp;&amp; hasBanner) || (hasBanner &amp;&amp; !hasCookie))))
+
+/* eliminate tautologies and contradictions, simplify */
+return needsPermissions &amp;&amp; (!needsPermissions || (shouldBeOpen || (hasBanner &amp;&amp; !hasCookie)))
+
+/* DeMorgan's Laws */
+return (needsPermissions &amp;&amp; !needsPermissions) || (needsPermissions &amp;&amp; (shouldBeOpen || (hasBanner &amp;&amp; !hasCookie)))
+
+/* eliminate contradiction, simplify */
+return needsPermissions &amp;&amp; (shouldBeOpen || (hasBanner &amp;&amp; !hasCookie))
+</code></pre>
+
+<p>I ended up with something that I think is more elegant and still readable:</p>
+
+<pre><code>const isGdprPreferencesModalOpen = ({
+  needsPermissions,
+  shouldBeOpen,
+  hasBanner,
+  hasCookie,
+}) =&gt; (
+  needsPermissions &amp;&amp; (shouldBeOpen || (!hasBanner &amp;&amp; !hasCookie))
+);
+</code></pre>
+
+<h3 id="example-2">Example 2</h3>
+
+<p>I found the following code (written by a coworker) while updating a component. Again, I felt the urge to eliminate the boolean literal returns, so I refactored it.</p>
+
+<pre><code>const isButtonDisabled = (isRequestInFlight, state) =&gt; {
+  if (isRequestInFlight) {
+    return true;
+  }
+  if (enabledStates.includes(state)) {
+    return false;
+  }
+  return true;
+};
+</code></pre>
+
+<p>Sometimes I do the following steps in my head or on scratch paper, but most often, I write each next step in the code and then delete the previous step.</p>
+
+<pre><code>// convert to if-else-if structure
+let result;
+if (isRequestInFlight) {
+  result = true;
+} else if (enabledStates.includes(state)) {
+  result = false;
+} else {
+  result = true;
+}
+return result;
+
+// convert to ternary
+return isRequestInFlight
+  ? true
+  : enabledStates.includes(state)
+    ? false
+    : true;
+
+/* convert from ternary to conjunction of disjunctions */
+return (!isRequestInFlight || true) &amp;&amp; (isRequestInFlight || ((!enabledStates.includes(state) || false) &amp;&amp; (enabledStates.includes(state) || true))
+
+/* remove tautologies and contradictions, simplify */
+return isRequestInFlight || !enabledStates.includes(state)
+</code></pre>
+
+<p>Then I end up with:</p>
+
+<pre><code>const isButtonDisabled = (isRequestInFlight, state) =&gt; (
+  isRequestInFlight || !enabledStates.includes(state)
+);
+</code></pre>
+
+<p>In this example, I didn’t start with English phrases and I never bothered to interpret the code to English while doing the manipulations, but now, at the end, we can easily translate this: “the button is disabled if either the request is in flight or the state is not in the set of enabled states.” That makes sense. If you ever translate your work back to English and it <em>doesn’t</em> make sense, re-check your work. This happens to me often.</p>
+
+<h3 id="example-3">Example 3</h3>
+
+<p>While writing an A/B testing framework for my company, we had two master lists of Enabled and Disabled experiments and we wanted to check that <em>every</em> experiment (each a separate file in a folder) was recorded in one or the other list <strong>but not both</strong>. This means the enabled and disabled sets are <em>disjointed</em> and the set of all experiments is a subset of the conjunction of the two sets of experiments. The reason the set of all experiments must be a subset of the combination of the two lists is that there should not be a single experiment that exists <em>outside</em> the two lists.</p>
+
+<pre><code>const isDisjoint = !enabled.some(disabled.includes) &amp;&amp; 
+  !disabled.some(enabled.includes);
+const isSubset = allExperiments.every(
+  enabled.concat(disabled).includes
+);
+assert(isDisjoint &amp;&amp; isSubset);
+</code></pre>
+
+<h3 id="conclusion">Conclusion</h3>
+
+<p>Hopefully this has all been helpful. Not only are the skills of translating English to code useful, but having the terminology to discuss different relationships (conjunction, implication, etc.) and the tools to evaluate them (truth tables) is handy.</p>
+</body>
+</html>
